@@ -11,11 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-@Entity
 public class Person {
-    @GeneratedValue
-    @Id
-    private Long id;
     private String firstName;
     private String middleName;
     private String lastName;
