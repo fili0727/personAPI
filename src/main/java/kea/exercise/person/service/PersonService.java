@@ -14,12 +14,14 @@ public class PersonService {
 
     private final WebClient webClient;
 
+
     public PersonService(WebClient webClient) {
         this.webClient = webClient;
     }
 
-    @Cacheable("ages")
+    @Cacheable(value = "ages", key = "#name")
     public Mono<AgeResponse> getPersonAge(String name) {
+        return Mono.defer(() -> {
         String uri = UriComponentsBuilder.fromHttpUrl("https://api.agify.io/")
                 .queryParam("name", name)
                 .toUriString();
@@ -28,10 +30,12 @@ public class PersonService {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(AgeResponse.class);
+        });
     }
 
-    @Cacheable("nationalities")
+    @Cacheable(value = "nationalities", key = "#name")
     public Mono<NationalityResponse> getPersonNationality(String name) {
+        return Mono.defer(() -> {
         String uri = UriComponentsBuilder.fromHttpUrl("https://api.nationalize.io/")
                 .queryParam("name", name)
                 .toUriString();
@@ -40,10 +44,12 @@ public class PersonService {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(NationalityResponse.class);
+        });
     }
 
-    @Cacheable("genders")
+    @Cacheable(value = "genders", key = "#name")
     public Mono<GenderResponse> getPersonGender(String name) {
+        return Mono.defer(() -> {
         String uri = UriComponentsBuilder.fromHttpUrl("https://api.genderize.io/")
                 .queryParam("name", name)
                 .toUriString();
@@ -52,5 +58,7 @@ public class PersonService {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(GenderResponse.class);
+    }
+    );
     }
 }

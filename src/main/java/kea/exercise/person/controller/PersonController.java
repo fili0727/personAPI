@@ -35,7 +35,7 @@ import java.util.List;
             ).map(tuple -> {
                 List<CountryItem> nationality = tuple.getT3().country();
                 CountryItem highestProbabilityCountry = nationality.stream()
-                        .max(Comparator.comparing(CountryItem::probability))
+                        .max(Comparator.comparing(CountryItem::countryProbability))
                         .orElse(null);
                 return new PersonResponse(
                         name,
@@ -43,7 +43,7 @@ import java.util.List;
                         tuple.getT2().gender(),
                         tuple.getT2().probability(),
                         highestProbabilityCountry.country_id(),
-                        highestProbabilityCountry.probability()
+                        highestProbabilityCountry.countryProbability()
                 );
             });
         }
