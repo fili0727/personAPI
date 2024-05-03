@@ -15,6 +15,9 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("ages", "nationalities", "genders");
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager("ages", "nationalities", "genders");
+        cacheManager.setCaffeine(Caffeine.newBuilder().expireAfterWrite(60, TimeUnit.MINUTES));
+        cacheManager.setAsyncCacheMode(true);
+        return cacheManager;
     }
 }
