@@ -9,19 +9,28 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 @Service
 public class PersonService {
 
     private final WebClient webClient;
+    private final ConcurrentHashMap<String, AgeResponse> ageCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, NationalityResponse> nationalityCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, GenderResponse> genderCache = new ConcurrentHashMap<>();
 
 
     public PersonService(WebClient webClient) {
         this.webClient = webClient;
     }
 
-    @Cacheable(value = "ages", key = "#name")
+
     public Mono<AgeResponse> getPersonAge(String name) {
-        return Mono.defer(() -> {
+        return Mono.justOrEmpty(ageCache.get(name))
+                .switchIfEmpty(fetchAgeFromApi(name).doOnNext(response -> ageCache.put(name, response)));
+    }
+
+    private Mono<AgeResponse> fetchAgeFromApi(String name) {
         String uri = UriComponentsBuilder.fromHttpUrl("https://api.agify.io/")
                 .queryParam("name", name)
                 .toUriString();
@@ -30,12 +39,14 @@ public class PersonService {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(AgeResponse.class);
-        });
     }
 
-    @Cacheable(value = "nationalities", key = "#name")
     public Mono<NationalityResponse> getPersonNationality(String name) {
-        return Mono.defer(() -> {
+        return Mono.justOrEmpty(nationalityCache.get(name))
+                .switchIfEmpty(fetchNationalityFromApi(name).doOnNext(response -> nationalityCache.put(name, response)));
+    }
+
+    private Mono<NationalityResponse> fetchNationalityFromApi(String name) {
         String uri = UriComponentsBuilder.fromHttpUrl("https://api.nationalize.io/")
                 .queryParam("name", name)
                 .toUriString();
@@ -44,12 +55,14 @@ public class PersonService {
                 .uri(uri)
                 .retrieve()
                 .bodyToMono(NationalityResponse.class);
-        });
     }
 
-    @Cacheable(value = "genders", key = "#name")
     public Mono<GenderResponse> getPersonGender(String name) {
-        return Mono.defer(() -> {
+        return Mono.justOrEmpty(genderCache.get(name))
+                .switchIfEmpty(fetchGenderFromApi(name).doOnNext(response -> genderCache.put(name, response)));
+    }
+
+    private Mono<GenderResponse> fetchGenderFromApi(String name) {
         String uri = UriComponentsBuilder.fromHttpUrl("https://api.genderize.io/")
                 .queryParam("name", name)
                 .toUriString();
@@ -59,6 +72,5 @@ public class PersonService {
                 .retrieve()
                 .bodyToMono(GenderResponse.class);
     }
-    );
-    }
+
 }

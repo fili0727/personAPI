@@ -3,6 +3,7 @@ package kea.exercise.person.controller;
 import kea.exercise.person.dto.CountryItem;
 import kea.exercise.person.dto.PersonResponse;
 import kea.exercise.person.service.PersonService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,9 +22,7 @@ import java.util.List;
             this.personService = personService;
         }
 
-
         @GetMapping
-
         public Mono<PersonResponse> getPersonInfo(@RequestParam String firstName, @RequestParam String lastName,
                                                   @RequestParam(required = false) String middleName) {
             String name = firstName + "+" + (middleName != null ? middleName + "+" : "") + lastName;
